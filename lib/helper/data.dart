@@ -35,35 +35,35 @@ class DbHelper {
   }
 
   Future<void> insertData({required User user}) async {
-    // String sql =
-    //     "INSERT INTO $tableName(${UserTable.id.name},${UserTable.name.name},) VALUES (?,?);";
+    String sql =
+        "INSERT INTO $tableName(${UserTable.id.name},${UserTable.name.name},${UserTable.email.name}) VALUES (?,?,?);";
     Map<String, dynamic> usermap = user.toMap;
-    usermap.remove('id');
-    await database.insert(tableName, usermap);
+    // usermap.remove('id');
+    // await database.insert(tableName, usermap);
 
-    // await database
-    //     .rawInsert(
-    //       sql,
-    //       [
-    //         user.id,
-    //         user.name,
-    //         // user.email,
-    //       ],
-    //     )
-    //     .then(
-    //       (value) => logger.i("user${user.name}"),
-    //     )
-    //     .onError(
-    //       (error, stackTrace) => logger.e("error$error"),
-    //     );
+    await database
+        .rawInsert(
+          sql,
+          [
+            user.id,
+            user.name,
+            user.email,
+          ],
+        )
+        .then(
+          (value) => logger.i("user${user.name}"),
+        )
+        .onError(
+          (error, stackTrace) => logger.e("error$error"),
+        );
   }
 
   Future<void> updateData({required User user}) async {
-    Map<String, dynamic> studentMap = user.toMap;
+    Map<String, dynamic> userMap = user.toMap;
     await database
-        .update(tableName, studentMap)
+        .update(tableName, userMap)
         .then(
-          (value) => logger.i('Student ${user.name} updated !!'),
+          (value) => logger.i('User ${user.name} updated !!'),
         )
         .onError(
           (error, stackTrace) => logger.e('Update Error: $error'),

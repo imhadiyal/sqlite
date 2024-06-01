@@ -13,6 +13,7 @@ class Homepage extends StatelessWidget {
     Logger logger = Logger();
     DbController mutable = Provider.of<DbController>(context);
     DbController unmutable = Provider.of<DbController>(context, listen: false);
+    User user = User.copy();
     return Scaffold(
       appBar: AppBar(
         title: const Text("SQL"),
@@ -24,13 +25,17 @@ class Homepage extends StatelessWidget {
             context: context,
             builder: (BuildContext context) {
               logger.i('Dialog Opened');
-              User user = User('name', mutable.allData.length + 1);
               return AlertDialog(
                 title: const Text("Add Student"),
                 actions: [
                   TextField(
                     onChanged: (name) {
                       user.name = name;
+                    },
+                  ),
+                  TextField(
+                    onChanged: (email) {
+                      user.email = email;
                     },
                   ),
                   TextButton.icon(
@@ -65,6 +70,68 @@ class Homepage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(mutable.allData[index].name),
+                    subtitle: Text(mutable.allData[index].email),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text("Update data"),
+                                  content: Column(
+                                    children: [
+                                      TextField(
+                                        onChanged: (val) {
+                                          user.name = val;
+                                        },
+                                      ),
+                                      TextButton.icon(
+                                        onPressed: () {
+                                          unmutable.updateData(user: user).then(
+                                            (value) {
+                                              logger.i(
+                                                  'Button pressed & ${user.name} updated !!');
+                                              Navigator.of(context).pop();
+                                            },
+                                          ).onError(
+                                            (error, stackTrace) {
+                                              logger.e(
+                                                error.toString(),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        label: const Text("Update"),
+                                        icon: const Icon(Icons.update),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.edit),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            mutable.deleteData(user: user).then(
+                              (value) {
+                                logger.i(
+                                    'Button pressed & ${user.name} deleted !!');
+                              },
+                            ).onError(
+                              (error, stackTrace) {
+                                logger.e(error.toString());
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.delete),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
